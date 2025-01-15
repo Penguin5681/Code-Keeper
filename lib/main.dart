@@ -128,7 +128,8 @@ class _BackupManagerState extends State<BackupManager> {
       }
 
       final projectName = path.basename(selectedPath!);
-      final timestamp = DateFormat('dd-MM-yyyy hh-mm-ss a').format(DateTime.now());
+      final timestamp =
+          DateFormat('dd-MM-yyyy hh-mm-ss a').format(DateTime.now());
       final backupFolderName = '$projectName $timestamp';
 
       final backupPath = path.join(backupDirectoryPath!, backupFolderName);
@@ -240,7 +241,8 @@ class _BackupManagerState extends State<BackupManager> {
                 context: context,
                 builder: (context) => AlertDialog(
                   title: const Text('Update Available'),
-                  content: const Text('A new version is available. Would you like to update now?'),
+                  content: const Text(
+                      'A new version is available. Would you like to update now?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context, false),
@@ -326,7 +328,9 @@ class _BackupManagerState extends State<BackupManager> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        isBackupRunning ? 'Backup Service Running' : 'Backup Service Stopped',
+                        isBackupRunning
+                            ? 'Backup Service Running'
+                            : 'Backup Service Stopped',
                         style: const TextStyle(fontSize: 18),
                       ),
                       if (isBackupRunning) ...[
@@ -371,7 +375,8 @@ class _BackupManagerState extends State<BackupManager> {
                                       Icons.folder,
                                       selectedPath ?? 'No folder selected',
                                       () async {
-                                        final result = await FilePicker.platform.getDirectoryPath();
+                                        final result = await FilePicker.platform
+                                            .getDirectoryPath();
                                         if (result != null) {
                                           setState(() => selectedPath = result);
                                         }
@@ -381,11 +386,14 @@ class _BackupManagerState extends State<BackupManager> {
                                     _buildConfigSection(
                                       'Backup Directory',
                                       Icons.backup_rounded,
-                                      backupDirectoryPath ?? 'No backup directory selected',
+                                      backupDirectoryPath ??
+                                          'No backup directory selected',
                                       () async {
-                                        final result = await FilePicker.platform.getDirectoryPath();
+                                        final result = await FilePicker.platform
+                                            .getDirectoryPath();
                                         if (result != null) {
-                                          setState(() => backupDirectoryPath = result);
+                                          setState(() =>
+                                              backupDirectoryPath = result);
                                         }
                                       },
                                     ),
@@ -396,7 +404,9 @@ class _BackupManagerState extends State<BackupManager> {
                                       children: [
                                         Expanded(
                                           child: ElevatedButton.icon(
-                                            onPressed: isBackupRunning ? null : startBackup,
+                                            onPressed: isBackupRunning
+                                                ? null
+                                                : startBackup,
                                             icon: const Icon(Icons.play_arrow),
                                             label: const Text('Start Backup'),
                                             style: ElevatedButton.styleFrom(
@@ -408,7 +418,9 @@ class _BackupManagerState extends State<BackupManager> {
                                         const SizedBox(width: 16),
                                         Expanded(
                                           child: ElevatedButton.icon(
-                                            onPressed: isBackupRunning ? stopBackup : null,
+                                            onPressed: isBackupRunning
+                                                ? stopBackup
+                                                : null,
                                             icon: const Icon(Icons.stop),
                                             label: const Text('Stop Backup'),
                                             style: ElevatedButton.styleFrom(
@@ -429,20 +441,29 @@ class _BackupManagerState extends State<BackupManager> {
                                 itemCount: backupLogs.length,
                                 itemBuilder: (context, index) {
                                   final log = backupLogs[index];
-                                  final isError = log.contains('Error') || log.contains('failed');
+                                  final isError = log.contains('Error') ||
+                                      log.contains('failed');
                                   return Card(
-                                    margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                                    color: isError ? Colors.red.withOpacity(0.1) : null,
+                                    margin: const EdgeInsets.symmetric(
+                                        vertical: 4, horizontal: 8),
+                                    color: isError
+                                        ? Colors.red.withOpacity(0.1)
+                                        : null,
                                     child: ListTile(
                                       leading: Icon(
-                                        isError ? Icons.error : Icons.check_circle,
-                                        color: isError ? Colors.red : Colors.green,
+                                        isError
+                                            ? Icons.error
+                                            : Icons.check_circle,
+                                        color:
+                                            isError ? Colors.red : Colors.green,
                                       ),
                                       title: Text(
                                         log,
                                         style: TextStyle(
                                           fontSize: 13,
-                                          color: isError ? Colors.red.shade300 : null,
+                                          color: isError
+                                              ? Colors.red.shade300
+                                              : null,
                                         ),
                                       ),
                                     ),
@@ -464,7 +485,8 @@ class _BackupManagerState extends State<BackupManager> {
     );
   }
 
-  Widget _buildConfigSection(String title, IconData icon, String value, VoidCallback onSelect) {
+  Widget _buildConfigSection(
+      String title, IconData icon, String value, VoidCallback onSelect) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -478,7 +500,9 @@ class _BackupManagerState extends State<BackupManager> {
             children: [
               Icon(icon, size: 20),
               const SizedBox(width: 8),
-              Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(title,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 12),
@@ -497,7 +521,8 @@ class _BackupManagerState extends State<BackupManager> {
                 icon: const Icon(Icons.folder_open),
                 label: const Text('Browse'),
                 style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 ),
               ),
             ],
@@ -521,7 +546,8 @@ class _BackupManagerState extends State<BackupManager> {
             children: [
               Icon(Icons.timer, size: 20),
               SizedBox(width: 8),
-              Text('Backup Interval', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text('Backup Interval',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 12),

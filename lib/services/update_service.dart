@@ -7,7 +7,8 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 class UpdateService {
-  static const String githubApiUrl = 'https://api.github.com/repos/Penguin5681/Code-Keeper/releases/latest';
+  static const String githubApiUrl =
+      'https://api.github.com/repos/Penguin5681/Code-Keeper/releases/latest';
   static const String githubDownloadUrl =
       'https://github.com/Penguin5681/Code-Keeper/releases/latest/download/code-keeper-windows.zip';
 
@@ -23,7 +24,8 @@ class UpdateService {
 
       if (response.statusCode == 200) {
         final releaseData = json.decode(response.body);
-        final latestVersion = releaseData['tag_name'].toString().replaceAll('v', '');
+        final latestVersion =
+            releaseData['tag_name'].toString().replaceAll('v', '');
 
         return _compareVersions(currentVersion, latestVersion);
       }
@@ -56,8 +58,10 @@ class UpdateService {
         final zipPath = '${updateDir.path}\\update.zip';
         await File(zipPath).writeAsBytes(response.bodyBytes);
 
-        final result = await Process.run(
-            'powershell', ['-command', "Expand-Archive -Path '$zipPath' -DestinationPath '${updateDir.path}\\extracted' -Force"]);
+        final result = await Process.run('powershell', [
+          '-command',
+          "Expand-Archive -Path '$zipPath' -DestinationPath '${updateDir.path}\\extracted' -Force"
+        ]);
 
         if (result.exitCode == 0) {
           final scriptPath = '${updateDir.path}\\update.bat';
