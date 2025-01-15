@@ -12,6 +12,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # This ensures we have the full git history
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -20,14 +22,11 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Disable Flutter Analytics
-        run: flutter config --no-analytics
-
       - name: Install dependencies
         run: flutter pub get
 
       - name: Verify formatting
-        run: dart format .
+        run: dart format --output=none --set-exit-if-changed .
 
       - name: Analyze project source
         run: flutter analyze
@@ -40,6 +39,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # This ensures we have the full git history
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -47,9 +48,6 @@ jobs:
           flutter-version: '3.16.5'
           channel: 'stable'
           cache: true
-
-      - name: Disable Flutter Analytics
-        run: flutter config --no-analytics
 
       - name: Install dependencies
         run: flutter pub get
@@ -65,13 +63,14 @@ jobs:
       - name: Generate Release Notes
         id: release_notes
         run: |
+          $lastTag = $(try { git describe --tags --abbrev=0 } catch { 'HEAD~10' })
           echo "### Code Keeper Release" > release_notes.md
           echo "Version: ${{ github.ref_name }}" >> release_notes.md
           echo "" >> release_notes.md
           echo "**Release Date:** $(Get-Date -Format "yyyy-MM-dd")" >> release_notes.md
           echo "" >> release_notes.md
           echo "### Changes" >> release_notes.md
-          git log $(git describe --tags --abbrev=0 2>/dev/null || echo HEAD~10)..HEAD --pretty=format:"* %s" >> release_notes.md
+          git log "$lastTag..HEAD" --pretty=format:"* %s" >> release_notes.md
         shell: pwsh
 
       - name: Create Release
