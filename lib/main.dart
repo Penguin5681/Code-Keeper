@@ -334,7 +334,7 @@ class _BackupManagerState extends State<BackupManager> {
                       if (isBackupRunning) ...[
                         const SizedBox(height: 8),
                         Text(
-                          'Next backup in ${backupInterval} minutes',
+                          'Next backup in $backupInterval minutes',
                           style: TextStyle(color: Colors.grey.shade400),
                         ),
                       ],
