@@ -92,7 +92,7 @@ class _BackupManagerState extends State<BackupManager> {
 
     backupTimer = Timer.periodic(
       Duration(minutes: backupInterval),
-          (timer) => createBackup(),
+      (timer) => createBackup(),
     );
   }
 
@@ -112,7 +112,8 @@ class _BackupManagerState extends State<BackupManager> {
       }
 
       final projectName = path.basename(selectedPath!);
-      final timestamp = DateFormat('dd-MM-yyyy hh-mm-ss a').format(DateTime.now());
+      final timestamp =
+          DateFormat('dd-MM-yyyy hh-mm-ss a').format(DateTime.now());
       final backupFolderName = '$projectName $timestamp';
 
       final backupPath = path.join(backupDirectoryPath!, backupFolderName);
@@ -187,7 +188,8 @@ class _BackupManagerState extends State<BackupManager> {
                   children: [
                     const Text(
                       'Project Folder',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -201,7 +203,8 @@ class _BackupManagerState extends State<BackupManager> {
                         const SizedBox(width: 8),
                         ElevatedButton(
                           onPressed: () async {
-                            final result = await FilePicker.platform.getDirectoryPath();
+                            final result =
+                                await FilePicker.platform.getDirectoryPath();
                             if (result != null) {
                               setState(() {
                                 selectedPath = result;
@@ -227,21 +230,24 @@ class _BackupManagerState extends State<BackupManager> {
                   children: [
                     const Text(
                       'Backup Directory',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
                           child: Text(
-                            backupDirectoryPath ?? 'No backup directory selected',
+                            backupDirectoryPath ??
+                                'No backup directory selected',
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         const SizedBox(width: 8),
                         ElevatedButton(
                           onPressed: () async {
-                            final result = await FilePicker.platform.getDirectoryPath();
+                            final result =
+                                await FilePicker.platform.getDirectoryPath();
                             if (result != null) {
                               setState(() {
                                 backupDirectoryPath = result;
@@ -267,7 +273,8 @@ class _BackupManagerState extends State<BackupManager> {
                   children: [
                     const Text(
                       'Backup Interval (minutes)',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     TextField(
@@ -297,7 +304,8 @@ class _BackupManagerState extends State<BackupManager> {
                   onPressed: isBackupRunning ? null : startBackup,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 16),
                   ),
                   child: const Text('Start Backup Service'),
                 ),
@@ -306,7 +314,8 @@ class _BackupManagerState extends State<BackupManager> {
                   onPressed: isBackupRunning ? stopBackup : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 32, vertical: 16),
                   ),
                   child: const Text('Stop Backup Service'),
                 ),
