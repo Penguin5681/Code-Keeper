@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'services/update_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -174,6 +174,98 @@ class _BackupManagerState extends State<BackupManager> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Code Keeper'),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == 'check_updates') {
+                final updateService = UpdateService();
+
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => const AlertDialog(
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Checking for updates...'),
+                      ],
+                    ),
+                  ),
+                );
+
+                final hasUpdate = await updateService.checkForUpdates();
+                if (!context.mounted) return;
+                Navigator.of(context).pop();
+
+                if (!hasUpdate) {
+                  if (!context.mounted) return;
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('No Updates Available'),
+                      content: const Text('You are running the latest version.'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('OK'),
+                        ),
+                      ],
+                    ),
+                  );
+                  return;
+                }
+
+                if (!context.mounted) return;
+                final shouldUpdate = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Update Available'),
+                    content: const Text('A new version is available. Would you like to update now?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, false),
+                        child: const Text('Later'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context, true),
+                        child: const Text('Update Now'),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (shouldUpdate == true) {
+                  if (!context.mounted) return;
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (context) => const AlertDialog(
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text('Downloading update...'),
+                        ],
+                      ),
+                    ),
+                  );
+
+                  await updateService.downloadAndInstallUpdate((progress) {
+                  });
+                }
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'check_updates',
+                child: Text('Check for Updates'),
+              ),
+            ],
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
