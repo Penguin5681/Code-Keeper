@@ -16,6 +16,7 @@ class BackupApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Code Keeper',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -35,6 +36,7 @@ class BackupManager extends StatefulWidget {
 
 class _BackupManagerState extends State<BackupManager> {
   String? selectedPath;
+  String? backupDirectoryPath;
   int backupInterval = 5;
   bool isBackupRunning = false;
   List<String> backupLogs = [];
@@ -53,7 +55,24 @@ class _BackupManagerState extends State<BackupManager> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('Error'),
-          content: const Text('Please select a folder first!'),
+          content: const Text('Please select a project folder first!'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    if (backupDirectoryPath == null) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Error'),
+          content: const Text('Please select a backup directory first!'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
@@ -73,7 +92,7 @@ class _BackupManagerState extends State<BackupManager> {
 
     backupTimer = Timer.periodic(
       Duration(minutes: backupInterval),
-      (timer) => createBackup(),
+          (timer) => createBackup(),
     );
   }
 
@@ -87,14 +106,18 @@ class _BackupManagerState extends State<BackupManager> {
 
   void createBackup() async {
     try {
+      if (backupDirectoryPath == null) {
+        addLog('Error: Backup directory not selected');
+        return;
+      }
+
       final projectName = path.basename(selectedPath!);
       final timestamp = DateFormat('dd-MM-yyyy hh-mm-ss a').format(DateTime.now());
       final backupFolderName = '$projectName $timestamp';
 
-      final backupBasePath = path.join(path.dirname(selectedPath!), 'backups');
-      final backupPath = path.join(backupBasePath, backupFolderName);
+      final backupPath = path.join(backupDirectoryPath!, backupFolderName);
 
-      await Directory(backupBasePath).create(recursive: true);
+      await Directory(backupDirectoryPath!).create(recursive: true);
 
       await _copyDirectory(selectedPath!, backupPath);
 
@@ -105,10 +128,30 @@ class _BackupManagerState extends State<BackupManager> {
   }
 
   Future<void> _copyDirectory(String source, String destination) async {
-    await Process.run('powershell', [
-      '-command',
-      "Copy-Item -Path '$source' -Destination '$destination' -Recurse -Exclude @('node_modules', '.git', 'build')"
-    ]);
+    try {
+      await Directory(destination).create(recursive: true);
+
+      await for (final entity in Directory(source).list(recursive: false)) {
+        final basename = path.basename(entity.path);
+
+        if (entity is Directory) {
+          if (['node_modules', '.git', 'build'].contains(basename)) {
+            continue;
+          }
+          await _copyDirectory(
+            entity.path,
+            path.join(destination, basename),
+          );
+        } else if (entity is File) {
+          await File(entity.path).copy(
+            path.join(destination, basename),
+          );
+        }
+      }
+    } catch (e) {
+      addLog('Error copying directory: ${e.toString()}');
+      rethrow;
+    }
   }
 
   void addLog(String message) {
@@ -129,7 +172,7 @@ class _BackupManagerState extends State<BackupManager> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Project Backup Manager'),
+        title: const Text('Code Keeper'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -166,6 +209,46 @@ class _BackupManagerState extends State<BackupManager> {
                             }
                           },
                           child: const Text('Select Folder'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+// Backup Directory Selection Section
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Backup Directory',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            backupDirectoryPath ?? 'No backup directory selected',
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final result = await FilePicker.platform.getDirectoryPath();
+                            if (result != null) {
+                              setState(() {
+                                backupDirectoryPath = result;
+                              });
+                            }
+                          },
+                          child: const Text('Select Directory'),
                         ),
                       ],
                     ),
