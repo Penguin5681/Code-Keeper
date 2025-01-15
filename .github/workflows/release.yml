@@ -1,5 +1,9 @@
 name: Release Flutter Windows App
 
+permissions:
+  contents: write
+  packages: write
+
 on:
   push:
     branches:
@@ -37,6 +41,8 @@ jobs:
   build:
     needs: validate
     runs-on: windows-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
         with:
@@ -60,23 +66,30 @@ jobs:
           cd build/windows/x64/runner/Release
           7z a -tzip ../../../../../code-keeper-windows.zip *
 
-      - name: Generate Version
-        id: version
+      - name: Get Next Version
+        id: semver
         run: |
-          $version = if ($env:GITHUB_REF.StartsWith("refs/tags/")) { 
-            $env:GITHUB_REF.Replace('refs/tags/v', '') 
-          } else { 
-            "1.0.0-$(Get-Date -Format 'yyyyMMdd-HHmmss')" 
+          # Get the latest tag
+          $latestTag = $(try { git describe --tags --abbrev=0 } catch { "v1.0.0" })
+          
+          if ($latestTag -match "v(\d+)\.(\d+)\.(\d+)") {
+            $major = [int]$Matches[1]
+            $minor = [int]$Matches[2]
+            $patch = [int]$Matches[3] + 1
+            $newVersion = "v$major.$minor.$patch"
+          } else {
+            $newVersion = "v1.0.0"
           }
-          echo "version=$version" >> $env:GITHUB_OUTPUT
+          
+          echo "version=$newVersion" >> $env:GITHUB_OUTPUT
         shell: pwsh
 
       - name: Generate Release Notes
         id: release_notes
         run: |
-          $lastTag = $(try { git describe --tags --abbrev=0 } catch { 'HEAD~10' })
+          $lastTag = $(try { git describe --tags --abbrev=0 } catch { "HEAD~10" })
           echo "### Code Keeper Release" > release_notes.md
-          echo "Version: ${{ steps.version.outputs.version }}" >> release_notes.md
+          echo "Version: ${{ steps.semver.outputs.version }}" >> release_notes.md
           echo "" >> release_notes.md
           echo "**Release Date:** $(Get-Date -Format "yyyy-MM-dd")" >> release_notes.md
           echo "" >> release_notes.md
@@ -89,9 +102,9 @@ jobs:
         with:
           files: code-keeper-windows.zip
           body_path: release_notes.md
-          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || format('v{0}', steps.version.outputs.version) }}
+          tag_name: ${{ steps.semver.outputs.version }}
           draft: false
-          prerelease: ${{ !startsWith(github.ref, 'refs/tags/') }}
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
