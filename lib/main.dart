@@ -188,12 +188,10 @@ class _BackupManagerState extends State<BackupManager> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Row(
+        title: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.storage_rounded, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 12),
-            const Text('Code Keeper'),
+            Text('Code Keeper'),
           ],
         ),
         actions: [

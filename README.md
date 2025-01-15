@@ -2,8 +2,8 @@
 
 <div align="center">
   <img src="https://github.com/user-attachments/assets/b8c55a2e-3e9d-4ca5-a854-71864e9bbf61" alt="Code Keeper Logo" width="120"/>
-  
-  A lightweight, efficient local backup solution for your project files.
+
+A lightweight, efficient local backup solution for your project files.
 </div>
 
 ## Features
